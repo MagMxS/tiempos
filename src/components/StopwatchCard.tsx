@@ -36,7 +36,15 @@ export default function StopwatchCard({
     }
   }, [stopwatch.goal, showGoalEditor]);
 
-  const { seconds, millis } = formatTime(elapsed);
+  const { seconds: totalSeconds, millis: totalMillis } = formatTime(elapsed);
+  
+  // Calcular tiempo parcial (desde la última vuelta)
+  const lastLapTime = stopwatch.laps.length > 0 
+    ? stopwatch.laps[stopwatch.laps.length - 1].totalTime 
+    : 0;
+  const partialElapsed = elapsed - lastLapTime;
+  const { seconds: partialSeconds, millis: partialMillis } = formatTime(partialElapsed);
+  
   const lapTimes = stopwatch.laps.map((l) => l.splitTime);
   const maxLap = lapTimes.length > 0 ? Math.max(...lapTimes) : 0;
   const minLap = lapTimes.length > 0 ? Math.min(...lapTimes) : 0;
@@ -77,13 +85,25 @@ export default function StopwatchCard({
         </button>
       </div>
 
-      {/* Time Display */}
-      <div className="text-center mb-4">
+      {/* Time Display - Total */}
+      <div className="text-center mb-2">
+        <div className="text-xs text-gray-500 mb-1">TOTAL</div>
         <div className="font-mono text-3xl tracking-tight">
-          <span className="text-orange-400">{seconds}</span>
+          <span className="text-orange-400">{totalSeconds}</span>
           <span className="text-gray-600">.</span>
-          <span className="text-green-400 text-2xl">{millis}</span>
+          <span className="text-green-400 text-2xl">{totalMillis}</span>
           <span className="text-gray-500 text-lg">s</span>
+        </div>
+      </div>
+
+      {/* Time Display - Partial (current lap) */}
+      <div className="text-center mb-4">
+        <div className="text-xs text-gray-500 mb-1">VUELTA ACTUAL</div>
+        <div className="font-mono text-2xl tracking-tight">
+          <span className="text-blue-400">{partialSeconds}</span>
+          <span className="text-gray-600">.</span>
+          <span className="text-cyan-400 text-xl">{partialMillis}</span>
+          <span className="text-gray-500 text-sm">s</span>
         </div>
         {stopwatch.isRunning && (
           <div className="flex items-center justify-center gap-1 mt-1">

@@ -34,7 +34,15 @@ export default function StopwatchDetail({
     }
   }, [stopwatch.goal, showGoalEditor]);
 
-  const { seconds, millis } = formatTime(elapsed);
+  const { seconds: totalSeconds, millis: totalMillis } = formatTime(elapsed);
+  
+  // Calcular tiempo parcial (desde la última vuelta)
+  const lastLapTime = stopwatch.laps.length > 0 
+    ? stopwatch.laps[stopwatch.laps.length - 1].totalTime 
+    : 0;
+  const partialElapsed = elapsed - lastLapTime;
+  const { seconds: partialSeconds, millis: partialMillis } = formatTime(partialElapsed);
+  
   const lapTimes = stopwatch.laps.map((l) => l.splitTime);
   const maxLap = lapTimes.length > 0 ? Math.max(...lapTimes) : 0;
   const minLap = lapTimes.length > 0 ? Math.min(...lapTimes) : 0;
@@ -86,14 +94,32 @@ export default function StopwatchDetail({
         </div>
       </div>
 
-      {/* Time Display */}
-      <div className="text-center py-6">
+      {/* Time Display - Total */}
+      <div className="text-center py-4">
+        <div className="text-sm text-gray-500 mb-2">TOTAL</div>
         <div className="font-mono text-5xl md:text-7xl tracking-tight">
-          <span className="text-orange-400">{seconds}</span>
+          <span className="text-orange-400">{totalSeconds}</span>
           <span className="text-gray-600">.</span>
-          <span className="text-green-400 text-4xl md:text-5xl">{millis}</span>
+          <span className="text-green-400 text-4xl md:text-5xl">{totalMillis}</span>
           <span className="text-gray-500 text-3xl md:text-4xl">s</span>
         </div>
+      </div>
+
+      {/* Time Display - Partial (current lap) */}
+      <div className="text-center pb-6">
+        <div className="text-sm text-gray-500 mb-2">VUELTA ACTUAL</div>
+        <div className="font-mono text-4xl md:text-5xl tracking-tight">
+          <span className="text-blue-400">{partialSeconds}</span>
+          <span className="text-gray-600">.</span>
+          <span className="text-cyan-400 text-3xl md:text-4xl">{partialMillis}</span>
+          <span className="text-gray-500 text-2xl md:text-3xl">s</span>
+        </div>
+        {stopwatch.isRunning && (
+          <div className="flex items-center justify-center gap-1 mt-2">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-xs text-green-400">Corriendo</span>
+          </div>
+        )}
         {stopwatch.goal && (
           <div className="mt-3">
             <span
