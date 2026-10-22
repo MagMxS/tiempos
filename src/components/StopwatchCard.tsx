@@ -296,8 +296,8 @@ export default function StopwatchCard({
                     if (stopwatch.goal) {
                       bgColor =
                         lap.splitTime > stopwatch.goal
-                          ? 'bg-red-500'
-                          : 'bg-green-500';
+                          ? 'bg-green-500'
+                          : 'bg-red-500';
                     }
                     const isFastest = lap.splitTime === minLap;
                     const isSlowest = lap.splitTime === maxLap;

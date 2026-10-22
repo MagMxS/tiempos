@@ -82,12 +82,12 @@ export default function StopwatchDetail({
           <div className="mt-3">
             <span
               className={`font-mono text-sm font-bold px-3 py-1 rounded-lg ${
-                elapsed <= stopwatch.goal
+                elapsed > stopwatch.goal
                   ? 'text-green-400 bg-green-500/10 border border-green-500/30'
                   : 'text-red-400 bg-red-500/10 border border-red-500/30'
               }`}
             >
-              {elapsed <= stopwatch.goal ? '✓ En tiempo' : '✗ Fuera de tiempo'}
+              {elapsed > stopwatch.goal ? '✓ Sobre meta' : '✗ Bajo meta'}
             </span>
           </div>
         )}
@@ -242,11 +242,11 @@ export default function StopwatchDetail({
                 <span className="text-gray-500">Cumpl: </span>
                 <span
                   className={`font-bold text-lg ${
-                    lapTimes.filter((t) => t <= stopwatch.goal!).length /
+                    lapTimes.filter((t) => t > stopwatch.goal!).length /
                       lapTimes.length >=
                     0.8
                       ? 'text-green-400'
-                      : lapTimes.filter((t) => t <= stopwatch.goal!).length /
+                      : lapTimes.filter((t) => t > stopwatch.goal!).length /
                           lapTimes.length >=
                         0.5
                         ? 'text-yellow-400'
@@ -254,7 +254,7 @@ export default function StopwatchDetail({
                   }`}
                 >
                   {Math.round(
-                    (lapTimes.filter((t) => t <= stopwatch.goal!).length /
+                    (lapTimes.filter((t) => t > stopwatch.goal!).length /
                       lapTimes.length) *
                       100
                   )}
@@ -321,8 +321,8 @@ export default function StopwatchDetail({
                     if (stopwatch.goal) {
                       bgColor =
                         lap.splitTime > stopwatch.goal
-                          ? 'bg-red-500'
-                          : 'bg-green-500';
+                          ? 'bg-green-500'
+                          : 'bg-red-500';
                     }
                     const isFastest = lap.splitTime === minLap;
                     const isSlowest = lap.splitTime === maxLap;
@@ -378,12 +378,12 @@ export default function StopwatchDetail({
             <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-[#333]">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-sm bg-green-500" />
-                <span className="text-sm text-gray-400">Bajo meta</span>
+                <span className="text-sm text-gray-400">Sobre meta</span>
               </div>
               {stopwatch.goal && (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-sm bg-red-500" />
-                  <span className="text-sm text-gray-400">Sobre meta</span>
+                  <span className="text-sm text-gray-400">Bajo meta</span>
                 </div>
               )}
             </div>
