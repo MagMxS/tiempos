@@ -3,7 +3,12 @@ import { useStopwatches } from './hooks/useStopwatches';
 import StopwatchCard from './components/StopwatchCard';
 import StopwatchDetail from './components/StopwatchDetail';
 import { exportToExcel } from './utils/excel';
-import { Plus, Timer, Download } from 'lucide-react';
+import { Plus, Timer, Download, Film, CheckCircle } from 'lucide-react';
+import AdBanner from './components/AdBanner';
+import VideoAdModal from './components/VideoAdModal';
+
+const ADS_DISABLED_KEY = 'adsDisabledUntil';
+const ADS_DISABLED_DURATION = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
 
 export default function App() {
   const {
@@ -19,39 +24,67 @@ export default function App() {
   } = useStopwatches();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+  const [showVideoAd, setShowVideoAd] = useState(false);
+  const [adsDisabledUntil, setAdsDisabledUntil] = useState<number | null>(null);
+  const [countdown, setCountdown] = useState<string>('');
+
   const selectedStopwatch = stopwatches.find((sw) => sw.id === selectedId);
+
+  // Cargar estado de anuncios desde localStorage
+  useEffect(() => {
+    const disabledUntil = localStorage.getItem(ADS_DISABLED_KEY);
+    if (disabledUntil) {
+      const timestamp = parseInt(disabledUntil);
+      if (timestamp > Date.now()) {
+        setAdsDisabledUntil(timestamp);
+      } else {
+        // Expiró, limpiar
+        localStorage.removeItem(ADS_DISABLED_KEY);
+      }
+    }
+  }, []);
+
+  // Actualizar countdown cada segundo
+  useEffect(() => {
+    if (adsDisabledUntil) {
+      const interval = setInterval(() => {
+        const remaining = adsDisabledUntil - Date.now();
+        if (remaining <= 0) {
+          setAdsDisabledUntil(null);
+          localStorage.removeItem(ADS_DISABLED_KEY);
+          setCountdown('');
+        } else {
+          const hours = Math.floor(remaining / (1000 * 60 * 60));
+          const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+          setCountdown(`${hours}h ${minutes}m ${seconds}s`);
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [adsDisabledUntil]);
 
   // Control por teclas de volumen / flechas
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // No interceptar si está escribiendo en un input
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-      // Flecha arriba o Volume Up = registrar vuelta
       if (e.key === 'ArrowUp' || e.key === 'VolumeUp') {
         e.preventDefault();
         const runningSw = stopwatches.find(sw => sw.isRunning);
         if (runningSw) {
           addLap(runningSw.id);
-          setActionFeedback('🚩 Vuelta registrada');
-          setTimeout(() => setActionFeedback(null), 1500);
         }
       }
 
-      // Flecha abajo o Volume Down = pausar/reanudar
       if (e.key === 'ArrowDown' || e.key === 'VolumeDown') {
         e.preventDefault();
         const runningSw = stopwatches.find(sw => sw.isRunning);
         if (runningSw) {
           pauseStopwatch(runningSw.id);
-          setActionFeedback('⏸️ Pausado');
-          setTimeout(() => setActionFeedback(null), 1500);
         } else if (stopwatches.length > 0) {
-          // Si no hay ninguno corriendo, iniciar el primero
           startStopwatch(stopwatches[0].id);
-          setActionFeedback('▶️ Iniciado');
-          setTimeout(() => setActionFeedback(null), 1500);
         }
       }
     };
@@ -60,19 +93,34 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [stopwatches, addLap, pauseStopwatch, startStopwatch]);
 
+  const handleVideoComplete = () => {
+    const until = Date.now() + ADS_DISABLED_DURATION;
+    setAdsDisabledUntil(until);
+    localStorage.setItem(ADS_DISABLED_KEY, until.toString());
+  };
+
+  const isAdsDisabled = adsDisabledUntil !== null && adsDisabledUntil > Date.now();
+
   // Vista detalle
   if (selectedStopwatch) {
     return (
-      <StopwatchDetail
-        stopwatch={selectedStopwatch}
-        elapsed={getElapsed(selectedStopwatch)}
-        onBack={() => setSelectedId(null)}
-        onStart={() => startStopwatch(selectedStopwatch.id)}
-        onPause={() => pauseStopwatch(selectedStopwatch.id)}
-        onReset={() => resetStopwatch(selectedStopwatch.id)}
-        onLap={() => addLap(selectedStopwatch.id)}
-        onSetGoal={(goal) => setGoal(selectedStopwatch.id, goal)}
-      />
+      <>
+        <StopwatchDetail
+          stopwatch={selectedStopwatch}
+          elapsed={getElapsed(selectedStopwatch)}
+          onBack={() => setSelectedId(null)}
+          onStart={() => startStopwatch(selectedStopwatch.id)}
+          onPause={() => pauseStopwatch(selectedStopwatch.id)}
+          onReset={() => resetStopwatch(selectedStopwatch.id)}
+          onLap={() => addLap(selectedStopwatch.id)}
+          onSetGoal={(goal) => setGoal(selectedStopwatch.id, goal)}
+        />
+        <VideoAdModal
+          isOpen={showVideoAd}
+          onClose={() => setShowVideoAd(false)}
+          onVideoComplete={handleVideoComplete}
+        />
+      </>
     );
   }
 
@@ -81,14 +129,37 @@ export default function App() {
     <div className="min-h-screen bg-[#121212]">
       {/* Header */}
       <header className="bg-[#1a1a1a] border-b border-[#333] px-4 py-3 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Timer size={24} className="text-orange-400" />
             <h1 className="text-lg md:text-xl font-bold text-white">
               Multi-Stopwatch Dashboard
             </h1>
           </div>
-          <div className="flex items-center gap-4">
+          
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* Botón de video / estado de anuncios */}
+            {isAdsDisabled ? (
+              <div className="flex items-center gap-2 px-3 py-2 bg-green-600/20 border border-green-500/30 rounded-lg">
+                <CheckCircle size={16} className="text-green-400" />
+                <div className="hidden sm:block text-xs text-green-400">
+                  <div className="font-semibold">Sin anuncios</div>
+                  <div className="text-[10px] text-green-400/70">{countdown}</div>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowVideoAd(true)}
+                className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+                title="Ver video para desactivar anuncios por 24 horas"
+              >
+                <Film size={16} />
+                <span className="hidden sm:inline">Ver Video - Sin anuncios 24h</span>
+                <span className="sm:hidden">Video</span>
+              </button>
+            )}
+
+            {/* Botón de exportar */}
             <button
               onClick={() => exportToExcel(stopwatches)}
               className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium"
@@ -97,7 +168,9 @@ export default function App() {
               <Download size={16} />
               <span className="hidden sm:inline">Excel</span>
             </button>
-            <div className="hidden md:flex items-center gap-4 text-xs text-gray-500">
+
+            {/* Atajos de teclado */}
+            <div className="hidden lg:flex items-center gap-3 text-xs text-gray-500">
               <div className="flex items-center gap-1">
                 <kbd className="px-2 py-1 bg-[#2a2a2a] rounded border border-[#444]">↑</kbd>
                 <span>Vuelta</span>
@@ -127,22 +200,39 @@ export default function App() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {stopwatches.map((sw) => (
-              <StopwatchCard
-                key={sw.id}
-                stopwatch={sw}
-                elapsed={getElapsed(sw)}
-                onStart={() => startStopwatch(sw.id)}
-                onPause={() => pauseStopwatch(sw.id)}
-                onReset={() => resetStopwatch(sw.id)}
-                onLap={() => addLap(sw.id)}
-                onRemove={() => removeStopwatch(sw.id)}
-                onSetGoal={(goal) => setGoal(sw.id, goal)}
-                onViewDetail={() => setSelectedId(sw.id)}
-              />
-            ))}
-          </div>
+          <>
+            {/* Banner superior de AdSense (solo si los anuncios están habilitados) */}
+            {!isAdsDisabled && <AdBanner slot="top-banner" format="horizontal" />}
+
+            {/* Grid de cronómetros */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {stopwatches.map((sw, index) => (
+                <div key={sw.id}>
+                  <StopwatchCard
+                    stopwatch={sw}
+                    elapsed={getElapsed(sw)}
+                    onStart={() => startStopwatch(sw.id)}
+                    onPause={() => pauseStopwatch(sw.id)}
+                    onReset={() => resetStopwatch(sw.id)}
+                    onLap={() => addLap(sw.id)}
+                    onRemove={() => removeStopwatch(sw.id)}
+                    onSetGoal={(goal) => setGoal(sw.id, goal)}
+                    onViewDetail={() => setSelectedId(sw.id)}
+                  />
+                  
+                  {/* Banner de AdSense cada 3 cronómetros (solo si los anuncios están habilitados) */}
+                  {!isAdsDisabled && (index + 1) % 3 === 0 && index < stopwatches.length - 1 && (
+                    <div className="col-span-full my-4">
+                      <AdBanner slot={`inline-${Math.floor(index / 3)}`} format="horizontal" />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Banner inferior de AdSense (solo si los anuncios están habilitados) */}
+            {!isAdsDisabled && <AdBanner slot="bottom-banner" format="horizontal" />}
+          </>
         )}
       </main>
 
@@ -154,12 +244,12 @@ export default function App() {
         <Plus size={28} />
       </button>
 
-      {/* Action Feedback Toast */}
-      {actionFeedback && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-[#2a2a2a] border border-orange-500/50 text-white px-6 py-3 rounded-lg shadow-xl z-50 animate-bounce">
-          <span className="text-sm font-semibold">{actionFeedback}</span>
-        </div>
-      )}
+      {/* Modal de video publicitario */}
+      <VideoAdModal
+        isOpen={showVideoAd}
+        onClose={() => setShowVideoAd(false)}
+        onVideoComplete={handleVideoComplete}
+      />
     </div>
   );
 }
