@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useStopwatches } from './hooks/useStopwatches';
 import StopwatchCard from './components/StopwatchCard';
 import StopwatchDetail from './components/StopwatchDetail';
-import { Plus, Timer } from 'lucide-react';
+import { exportToExcel } from './utils/excel';
+import { Plus, Timer, Download } from 'lucide-react';
 
 export default function App() {
   const {
@@ -87,14 +88,24 @@ export default function App() {
               Multi-Stopwatch Dashboard
             </h1>
           </div>
-          <div className="hidden md:flex items-center gap-4 text-xs text-gray-500">
-            <div className="flex items-center gap-1">
-              <kbd className="px-2 py-1 bg-[#2a2a2a] rounded border border-[#444]">↑</kbd>
-              <span>Vuelta</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <kbd className="px-2 py-1 bg-[#2a2a2a] rounded border border-[#444]">↓</kbd>
-              <span>Pausa</span>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => exportToExcel(stopwatches)}
+              className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium"
+              title="Descargar datos en Excel"
+            >
+              <Download size={16} />
+              <span className="hidden sm:inline">Excel</span>
+            </button>
+            <div className="hidden md:flex items-center gap-4 text-xs text-gray-500">
+              <div className="flex items-center gap-1">
+                <kbd className="px-2 py-1 bg-[#2a2a2a] rounded border border-[#444]">↑</kbd>
+                <span>Vuelta</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <kbd className="px-2 py-1 bg-[#2a2a2a] rounded border border-[#444]">↓</kbd>
+                <span>Pausa</span>
+              </div>
             </div>
           </div>
         </div>
