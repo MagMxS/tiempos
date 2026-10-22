@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Stopwatch } from '../types';
-import { formatTime } from '../utils/time';
+import { formatTime, formatSeconds } from '../utils/time';
 import { ArrowLeft, Play, Pause, RotateCcw, Flag, Target, BarChart3, Check, X } from 'lucide-react';
 
 interface StopwatchDetailProps {
@@ -28,7 +28,7 @@ export default function StopwatchDetail({
   const [goalMinutes, setGoalMinutes] = useState('');
   const [goalSeconds, setGoalSeconds] = useState('');
 
-  const { minutes, seconds, millis } = formatTime(elapsed);
+  const { seconds, millis } = formatTime(elapsed);
   const lapTimes = stopwatch.laps.map((l) => l.splitTime);
   const maxLap = lapTimes.length > 0 ? Math.max(...lapTimes) : 0;
   const minLap = lapTimes.length > 0 ? Math.min(...lapTimes) : 0;
@@ -84,8 +84,6 @@ export default function StopwatchDetail({
       {/* Time Display */}
       <div className="text-center py-6">
         <div className="font-mono text-5xl md:text-7xl tracking-tight">
-          <span className="text-white">{minutes}</span>
-          <span className="text-gray-500">:</span>
           <span className="text-orange-400">{seconds}</span>
           <span className="text-gray-600">.</span>
           <span className="text-green-400 text-4xl md:text-5xl">{millis}</span>
@@ -145,8 +143,7 @@ export default function StopwatchDetail({
           {stopwatch.goal && (
             <div className="flex items-center gap-3">
               <span className="font-mono text-lg text-yellow-400 font-bold">
-                {formatTime(stopwatch.goal).minutes}:
-                {formatTime(stopwatch.goal).seconds}
+                {formatSeconds(stopwatch.goal)}
               </span>
               <button
                 onClick={() => onSetGoal(null)}
@@ -292,7 +289,7 @@ export default function StopwatchDetail({
                         className="absolute right-0 text-[10px] text-gray-400 font-mono"
                         style={{ bottom: `${bottomPercent}%`, transform: 'translateY(50%)' }}
                       >
-                        {formatTime(timeValue).minutes}:{formatTime(timeValue).seconds}
+                        {formatSeconds(timeValue)}
                       </div>
                     );
                   });
@@ -345,8 +342,7 @@ export default function StopwatchDetail({
                         className="flex-1 flex flex-col items-center justify-end h-full relative"
                       >
                         <span className="text-[10px] text-gray-400 font-mono mb-1">
-                          {formatTime(lap.splitTime).minutes}:
-                          {formatTime(lap.splitTime).seconds}
+                          {formatSeconds(lap.splitTime)}
                         </span>
                         <div
                           className={`w-full ${bgColor} rounded-t-md transition-all relative ${
@@ -407,7 +403,7 @@ export default function StopwatchDetail({
                 Más Rápida
               </div>
               <div className="text-lg font-mono text-green-400 font-bold">
-                {formatTime(minLap).minutes}:{formatTime(minLap).seconds}
+                {formatSeconds(minLap)}
               </div>
             </div>
             <div className="bg-[#2a2a2a] rounded-lg py-3 text-center border border-[#333]">
@@ -415,7 +411,7 @@ export default function StopwatchDetail({
                 Promedio
               </div>
               <div className="text-lg font-mono text-blue-400 font-bold">
-                {formatTime(avgLap).minutes}:{formatTime(avgLap).seconds}
+                {formatSeconds(avgLap)}
               </div>
             </div>
             <div className="bg-[#2a2a2a] rounded-lg py-3 text-center border border-[#333]">
@@ -423,7 +419,7 @@ export default function StopwatchDetail({
                 Más Lenta
               </div>
               <div className="text-lg font-mono text-red-400 font-bold">
-                {formatTime(maxLap).minutes}:{formatTime(maxLap).seconds}
+                {formatSeconds(maxLap)}
               </div>
             </div>
           </div>
@@ -452,7 +448,7 @@ export default function StopwatchDetail({
                 {[...stopwatch.laps].reverse().map((lap) => {
                   const isFastest = lap.splitTime === minLap;
                   const isSlowest = lap.splitTime === maxLap;
-                  const { minutes: m, seconds: s, millis: ms } = formatTime(
+                  const { seconds: s, millis: ms } = formatTime(
                     lap.splitTime
                   );
                   return (
@@ -478,11 +474,10 @@ export default function StopwatchDetail({
                               : 'text-white'
                         }`}
                       >
-                        {m}:{s}.{ms}
+                        {s}.{ms}
                       </td>
                       <td className="px-4 py-2 text-right font-mono text-sm text-gray-400">
-                        {formatTime(lap.totalTime).minutes}:
-                        {formatTime(lap.totalTime).seconds}
+                        {formatSeconds(lap.totalTime)}
                       </td>
                       <td className="px-4 py-2 text-center">
                         {isFastest && (

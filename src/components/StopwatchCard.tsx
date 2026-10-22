@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Stopwatch } from '../types';
-import { formatTime } from '../utils/time';
+import { formatTime, formatSeconds } from '../utils/time';
 import { Play, Pause, RotateCcw, Flag, Target, BarChart3, Check, X, Trash2 } from 'lucide-react';
 
 interface StopwatchCardProps {
@@ -30,7 +30,7 @@ export default function StopwatchCard({
   const [goalMinutes, setGoalMinutes] = useState('');
   const [goalSeconds, setGoalSeconds] = useState('');
 
-  const { minutes, seconds, millis } = formatTime(elapsed);
+  const { seconds, millis } = formatTime(elapsed);
   const lapTimes = stopwatch.laps.map((l) => l.splitTime);
   const maxLap = lapTimes.length > 0 ? Math.max(...lapTimes) : 0;
   const minLap = lapTimes.length > 0 ? Math.min(...lapTimes) : 0;
@@ -75,8 +75,6 @@ export default function StopwatchCard({
       {/* Time Display */}
       <div className="text-center mb-4">
         <div className="font-mono text-3xl tracking-tight">
-          <span className="text-white">{minutes}</span>
-          <span className="text-gray-500">:</span>
           <span className="text-orange-400">{seconds}</span>
           <span className="text-gray-600">.</span>
           <span className="text-green-400 text-2xl">{millis}</span>
@@ -133,8 +131,7 @@ export default function StopwatchCard({
           {stopwatch.goal && (
             <div className="flex items-center gap-2">
               <span className="font-mono text-sm text-yellow-400 font-bold">
-                {formatTime(stopwatch.goal).minutes}:
-                {formatTime(stopwatch.goal).seconds}
+                {formatTime(stopwatch.goal).seconds}s
               </span>
               <button
                 onClick={() => onSetGoal(null)}
@@ -255,7 +252,7 @@ export default function StopwatchCard({
                         className="absolute right-0 text-[8px] text-gray-500 font-mono"
                         style={{ bottom: `${bottomPercent}%`, transform: 'translateY(50%)' }}
                       >
-                        {formatTime(timeValue).minutes}:{formatTime(timeValue).seconds}
+                        {formatSeconds(timeValue)}
                       </div>
                     );
                   });
@@ -338,19 +335,19 @@ export default function StopwatchCard({
               <div className="bg-[#2a2a2a] rounded py-1 text-center">
                 <div className="text-[8px] text-gray-500">Mejor</div>
                 <div className="text-[10px] font-mono text-green-400 font-bold">
-                  {formatTime(minLap).minutes}:{formatTime(minLap).seconds}
+                  {formatSeconds(minLap)}
                 </div>
               </div>
               <div className="bg-[#2a2a2a] rounded py-1 text-center">
                 <div className="text-[8px] text-gray-500">Prom</div>
                 <div className="text-[10px] font-mono text-blue-400 font-bold">
-                  {formatTime(avgLap).minutes}:{formatTime(avgLap).seconds}
+                  {formatSeconds(avgLap)}
                 </div>
               </div>
               <div className="bg-[#2a2a2a] rounded py-1 text-center">
                 <div className="text-[8px] text-gray-500">Peor</div>
                 <div className="text-[10px] font-mono text-red-400 font-bold">
-                  {formatTime(maxLap).minutes}:{formatTime(maxLap).seconds}
+                  {formatSeconds(maxLap)}
                 </div>
               </div>
             </div>
