@@ -265,69 +265,106 @@ export default function StopwatchDetail({
           </div>
 
           <div className="relative bg-[#1a1a1a] rounded-lg p-4 border border-[#333]">
-            <div className="relative h-48 md:h-64 flex items-end gap-1 px-2">
-              {stopwatch.goal && (
-                <div
-                  className="absolute left-0 right-0 border-t-2 border-dashed border-yellow-400 z-10 pointer-events-none"
-                  style={{
-                    bottom: `${Math.min(100, (stopwatch.goal / Math.max(maxLap, stopwatch.goal)) * 100)}%`,
-                  }}
-                >
-                  <span className="absolute right-0 -top-5 text-xs text-yellow-400 font-bold bg-[#1a1a1a] px-2">
-                    🎯 META
-                  </span>
-                </div>
-              )}
+            <div className="flex gap-3">
+              {/* Y-axis scale */}
+              <div className="relative w-12 flex-shrink-0">
+                {(() => {
+                  const maxTime = Math.max(maxLap, stopwatch.goal || 0) * 1.1;
+                  const ticks = 6;
+                  return Array.from({ length: ticks + 1 }, (_, i) => {
+                    const timeValue = (maxTime * i) / ticks;
+                    const bottomPercent = (i / ticks) * 100;
+                    return (
+                      <div
+                        key={i}
+                        className="absolute right-0 text-[10px] text-gray-400 font-mono"
+                        style={{ bottom: `${bottomPercent}%`, transform: 'translateY(50%)' }}
+                      >
+                        {formatTime(timeValue).minutes}:{formatTime(timeValue).seconds}
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
 
-              {stopwatch.laps.map((lap) => {
-                const maxTime = Math.max(maxLap, stopwatch.goal || 0);
-                const heightPercent = (lap.splitTime / maxTime) * 100;
-                let bgColor = 'bg-green-500';
-                if (stopwatch.goal) {
-                  bgColor =
-                    lap.splitTime > stopwatch.goal
-                      ? 'bg-red-500'
-                      : 'bg-green-500';
-                }
-                const isFastest = lap.splitTime === minLap;
-                const isSlowest = lap.splitTime === maxLap;
-
-                return (
+              {/* Chart area */}
+              <div className="flex-1 relative">
+                {/* Goal line */}
+                {stopwatch.goal && (
                   <div
-                    key={lap.id}
-                    className="flex-1 flex flex-col items-center gap-1"
+                    className="absolute left-0 right-0 border-t-2 border-dashed border-yellow-400 z-10 pointer-events-none"
+                    style={{
+                      bottom: `${Math.min(100, (stopwatch.goal / (Math.max(maxLap, stopwatch.goal) * 1.1)) * 100)}%`,
+                    }}
                   >
-                    <span className="text-[10px] text-gray-400 font-mono">
-                      {formatTime(lap.splitTime).minutes}:
-                      {formatTime(lap.splitTime).seconds}
-                    </span>
-                    <div
-                      className={`w-full ${bgColor} rounded-t-md transition-all ${
-                        isFastest ? 'ring-2 ring-green-400' : ''
-                      } ${isSlowest ? 'ring-2 ring-red-400' : ''}`}
-                      style={{
-                        height: `${heightPercent}%`,
-                        minHeight: '8px',
-                        opacity: 0.85,
-                      }}
-                    >
-                      {isFastest && (
-                        <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs">
-                          ⚡
-                        </span>
-                      )}
-                      {isSlowest && (
-                        <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs">
-                          🐢
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs text-gray-500 font-semibold">
-                      V{lap.number}
+                    <span className="absolute right-0 -top-5 text-xs text-yellow-400 font-bold bg-[#1a1a1a] px-2">
+                      🎯 META
                     </span>
                   </div>
-                );
-              })}
+                )}
+
+                {/* Grid lines */}
+                {Array.from({ length: 6 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="absolute left-0 right-0 border-t border-[#333]"
+                    style={{ bottom: `${(i / 6) * 100}%` }}
+                  />
+                ))}
+
+                {/* Bars */}
+                <div className="relative h-48 md:h-64 flex items-end gap-1 px-2">
+                  {stopwatch.laps.map((lap) => {
+                    const maxTime = Math.max(maxLap, stopwatch.goal || 0) * 1.1;
+                    const heightPercent = (lap.splitTime / maxTime) * 100;
+                    let bgColor = 'bg-green-500';
+                    if (stopwatch.goal) {
+                      bgColor =
+                        lap.splitTime > stopwatch.goal
+                          ? 'bg-red-500'
+                          : 'bg-green-500';
+                    }
+                    const isFastest = lap.splitTime === minLap;
+                    const isSlowest = lap.splitTime === maxLap;
+
+                    return (
+                      <div
+                        key={lap.id}
+                        className="flex-1 flex flex-col items-center gap-1"
+                      >
+                        <span className="text-[10px] text-gray-400 font-mono">
+                          {formatTime(lap.splitTime).minutes}:
+                          {formatTime(lap.splitTime).seconds}
+                        </span>
+                        <div
+                          className={`w-full ${bgColor} rounded-t-md transition-all ${
+                            isFastest ? 'ring-2 ring-green-400' : ''
+                          } ${isSlowest ? 'ring-2 ring-red-400' : ''}`}
+                          style={{
+                            height: `${heightPercent}%`,
+                            minHeight: '8px',
+                            opacity: 0.85,
+                          }}
+                        >
+                          {isFastest && (
+                            <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs">
+                              ⚡
+                            </span>
+                          )}
+                          {isSlowest && (
+                            <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs">
+                              🐢
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-500 font-semibold">
+                          V{lap.number}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-[#333]">
