@@ -1,0 +1,13 @@
+{
+  "background_color": "#121212",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Multi-Stopwatch",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Stopwatch",
+  "start_url": "/",
+  "theme_color": "#1a1a1a",
+  "id": "com.multistopwatch.app",
+  "description": "Aplicación de múltiples cronómetros para control de tiempos y registro de vueltas."
+}
