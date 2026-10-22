@@ -23,14 +23,16 @@ export function useStopwatches() {
   const animFrameRef = useRef<number>(0);
   const [, forceUpdate] = useState(0);
 
-  useEffect(() => { saveToStorage(stopwatches); }, [stopwatches]);
+  useEffect(() => {
+    saveToStorage(stopwatches);
+  }, [stopwatches]);
 
-  const hasRunning = stopwatches.some(sw => sw.isRunning);
-  
+  const hasRunning = stopwatches.some((sw: Stopwatch) => sw.isRunning);
+
   useEffect(() => {
     if (hasRunning) {
       const tick = () => {
-        forceUpdate(n => n + 1);
+        forceUpdate((n) => n + 1);
         animFrameRef.current = requestAnimationFrame(tick);
       };
       animFrameRef.current = requestAnimationFrame(tick);
@@ -50,88 +52,89 @@ export function useStopwatches() {
       id: uuidv4(),
       name: name || `Cronómetro ${stopwatches.length + 1}`,
       isRunning: false,
-      isFavorite: false,
       startTime: 0,
       elapsed: 0,
       laps: [],
-      createdAt: Date.now(),
       goal: null,
+      createdAt: Date.now(),
     };
-    setStopwatches(prev => [...prev, newSw]);
+    setStopwatches((prev) => [...prev, newSw]);
     return newSw.id;
   }, [stopwatches.length]);
 
   const removeStopwatch = useCallback((id: string) => {
-    setStopwatches(prev => prev.filter(sw => sw.id !== id));
-  }, []);
-
-  const duplicateStopwatch = useCallback((id: string) => {
-    setStopwatches(prev => {
-      const sw = prev.find(s => s.id === id);
-      if (!sw) return prev;
-      const newSw: Stopwatch = { ...sw, id: uuidv4(), name: `${sw.name} (copia)`, isRunning: false, startTime: 0, laps: [], createdAt: Date.now() };
-      return [...prev, newSw];
-    });
+    setStopwatches((prev) => prev.filter((sw) => sw.id !== id));
   }, []);
 
   const startStopwatch = useCallback((id: string) => {
-    setStopwatches(prev => prev.map(sw => sw.id !== id ? sw : { ...sw, isRunning: true, startTime: Date.now() }));
+    setStopwatches((prev) =>
+      prev.map((sw) =>
+        sw.id !== id ? sw : { ...sw, isRunning: true, startTime: Date.now() }
+      )
+    );
   }, []);
 
   const pauseStopwatch = useCallback((id: string) => {
-    setStopwatches(prev => prev.map(sw => {
-      if (sw.id !== id) return sw;
-      const elapsed = sw.elapsed + (Date.now() - sw.startTime);
-      return { ...sw, isRunning: false, elapsed, startTime: 0 };
-    }));
+    setStopwatches((prev) =>
+      prev.map((sw) => {
+        if (sw.id !== id) return sw;
+        const elapsed = sw.elapsed + (Date.now() - sw.startTime);
+        return { ...sw, isRunning: false, elapsed, startTime: 0 };
+      })
+    );
   }, []);
 
   const resetStopwatch = useCallback((id: string) => {
-    setStopwatches(prev => prev.map(sw => sw.id !== id ? sw : { ...sw, isRunning: false, elapsed: 0, startTime: 0, laps: [] }));
+    setStopwatches((prev) =>
+      prev.map((sw) =>
+        sw.id !== id
+          ? sw
+          : { ...sw, isRunning: false, elapsed: 0, startTime: 0, laps: [] }
+      )
+    );
   }, []);
 
   const addLap = useCallback((id: string) => {
-    setStopwatches(prev => prev.map(sw => {
-      if (sw.id !== id || !sw.isRunning) return sw;
-      const totalTime = sw.elapsed + (Date.now() - sw.startTime);
-      const lastLapTotal = sw.laps.length > 0 ? sw.laps[sw.laps.length - 1].totalTime : 0;
-      const splitTime = totalTime - lastLapTotal;
-      const newLap: Lap = { id: uuidv4(), number: sw.laps.length + 1, splitTime, totalTime };
-      return { ...sw, laps: [...sw.laps, newLap] };
-    }));
+    setStopwatches((prev) =>
+      prev.map((sw) => {
+        if (sw.id !== id || !sw.isRunning) return sw;
+        const totalTime = sw.elapsed + (Date.now() - sw.startTime);
+        const lastLapTotal =
+          sw.laps.length > 0 ? sw.laps[sw.laps.length - 1].totalTime : 0;
+        const splitTime = totalTime - lastLapTotal;
+        const newLap: Lap = {
+          id: uuidv4(),
+          number: sw.laps.length + 1,
+          splitTime,
+          totalTime,
+        };
+        return { ...sw, laps: [...sw.laps, newLap] };
+      })
+    );
   }, []);
 
   const renameStopwatch = useCallback((id: string, name: string) => {
-    setStopwatches(prev => prev.map(sw => sw.id !== id ? sw : { ...sw, name }));
-  }, []);
-
-  const toggleFavorite = useCallback((id: string) => {
-    setStopwatches(prev => prev.map(sw => sw.id !== id ? sw : { ...sw, isFavorite: !sw.isFavorite }));
+    setStopwatches((prev) =>
+      prev.map((sw) => (sw.id !== id ? sw : { ...sw, name }))
+    );
   }, []);
 
   const setGoal = useCallback((id: string, goal: number | null) => {
-    setStopwatches(prev => prev.map(sw => sw.id !== id ? sw : { ...sw, goal }));
-  }, []);
-
-  const startAll = useCallback(() => {
-    setStopwatches(prev => prev.map(sw => sw.isRunning ? sw : { ...sw, isRunning: true, startTime: Date.now() }));
-  }, []);
-
-  const pauseAll = useCallback(() => {
-    setStopwatches(prev => prev.map(sw => {
-      if (!sw.isRunning) return sw;
-      const elapsed = sw.elapsed + (Date.now() - sw.startTime);
-      return { ...sw, isRunning: false, elapsed, startTime: 0 };
-    }));
-  }, []);
-
-  const resetAll = useCallback(() => {
-    setStopwatches(prev => prev.map(sw => ({ ...sw, isRunning: false, elapsed: 0, startTime: 0, laps: [] })));
+    setStopwatches((prev) =>
+      prev.map((sw) => (sw.id !== id ? sw : { ...sw, goal }))
+    );
   }, []);
 
   return {
-    stopwatches, getElapsed, addStopwatch, removeStopwatch, duplicateStopwatch,
-    startStopwatch, pauseStopwatch, resetStopwatch, addLap, renameStopwatch,
-    toggleFavorite, setGoal, startAll, pauseAll, resetAll,
+    stopwatches,
+    getElapsed,
+    addStopwatch,
+    removeStopwatch,
+    startStopwatch,
+    pauseStopwatch,
+    resetStopwatch,
+    addLap,
+    renameStopwatch,
+    setGoal,
   };
 }

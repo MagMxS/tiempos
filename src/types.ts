@@ -1,20 +1,17 @@
 export interface Lap {
   id: string;
   number: number;
-  splitTime: number; // tiempo parcial en ms
-  totalTime: number;  // tiempo acumulado en ms
+  splitTime: number;
+  totalTime: number;
 }
 
 export interface Stopwatch {
   id: string;
   name: string;
   isRunning: boolean;
-  isFavorite: boolean;
   startTime: number;
   elapsed: number;
   laps: Lap[];
-  createdAt: number;
   goal: number | null;
+  createdAt: number;
 }
-
-export type ViewMode = 'grid' | 'detail';
