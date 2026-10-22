@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStopwatches } from './hooks/useStopwatches';
 import StopwatchCard from './components/StopwatchCard';
 import StopwatchDetail from './components/StopwatchDetail';
@@ -18,7 +18,46 @@ export default function App() {
   } = useStopwatches();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<string | null>(null);
   const selectedStopwatch = stopwatches.find((sw) => sw.id === selectedId);
+
+  // Control por teclas de volumen / flechas
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // No interceptar si está escribiendo en un input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      // Flecha arriba o Volume Up = registrar vuelta
+      if (e.key === 'ArrowUp' || e.key === 'VolumeUp') {
+        e.preventDefault();
+        const runningSw = stopwatches.find(sw => sw.isRunning);
+        if (runningSw) {
+          addLap(runningSw.id);
+          setActionFeedback('🚩 Vuelta registrada');
+          setTimeout(() => setActionFeedback(null), 1500);
+        }
+      }
+
+      // Flecha abajo o Volume Down = pausar/reanudar
+      if (e.key === 'ArrowDown' || e.key === 'VolumeDown') {
+        e.preventDefault();
+        const runningSw = stopwatches.find(sw => sw.isRunning);
+        if (runningSw) {
+          pauseStopwatch(runningSw.id);
+          setActionFeedback('⏸️ Pausado');
+          setTimeout(() => setActionFeedback(null), 1500);
+        } else if (stopwatches.length > 0) {
+          // Si no hay ninguno corriendo, iniciar el primero
+          startStopwatch(stopwatches[0].id);
+          setActionFeedback('▶️ Iniciado');
+          setTimeout(() => setActionFeedback(null), 1500);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [stopwatches, addLap, pauseStopwatch, startStopwatch]);
 
   // Vista detalle
   if (selectedStopwatch) {
@@ -41,11 +80,23 @@ export default function App() {
     <div className="min-h-screen bg-[#121212]">
       {/* Header */}
       <header className="bg-[#1a1a1a] border-b border-[#333] px-4 py-3 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto flex items-center gap-2">
-          <Timer size={24} className="text-orange-400" />
-          <h1 className="text-lg md:text-xl font-bold text-white">
-            Multi-Stopwatch Dashboard
-          </h1>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Timer size={24} className="text-orange-400" />
+            <h1 className="text-lg md:text-xl font-bold text-white">
+              Multi-Stopwatch Dashboard
+            </h1>
+          </div>
+          <div className="hidden md:flex items-center gap-4 text-xs text-gray-500">
+            <div className="flex items-center gap-1">
+              <kbd className="px-2 py-1 bg-[#2a2a2a] rounded border border-[#444]">↑</kbd>
+              <span>Vuelta</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <kbd className="px-2 py-1 bg-[#2a2a2a] rounded border border-[#444]">↓</kbd>
+              <span>Pausa</span>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -91,6 +142,13 @@ export default function App() {
       >
         <Plus size={28} />
       </button>
+
+      {/* Action Feedback Toast */}
+      {actionFeedback && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-[#2a2a2a] border border-orange-500/50 text-white px-6 py-3 rounded-lg shadow-xl z-50 animate-bounce">
+          <span className="text-sm font-semibold">{actionFeedback}</span>
+        </div>
+      )}
     </div>
   );
 }
