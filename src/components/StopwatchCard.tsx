@@ -240,93 +240,98 @@ export default function StopwatchCard({
         ) : (
           <>
             <div className="relative bg-[#1a1a1a] rounded-lg p-3 border border-[#333]">
-              <div className="flex gap-2">
-                {/* Y-axis scale */}
-                <div className="relative w-10 flex-shrink-0">
-                  {(() => {
-                    const maxTime = Math.max(maxLap, stopwatch.goal || 0) * 1.1;
-                    const ticks = 5;
-                    return Array.from({ length: ticks + 1 }, (_, i) => {
-                      const timeValue = (maxTime * i) / ticks;
-                      const bottomPercent = (i / ticks) * 100;
-                      return (
-                        <div
-                          key={i}
-                          className="absolute right-0 text-[8px] text-gray-500 font-mono"
-                          style={{ bottom: `${bottomPercent}%`, transform: 'translateY(50%)' }}
-                        >
-                          {formatTime(timeValue).minutes}:{formatTime(timeValue).seconds}
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
+            <div className="flex gap-2">
+              {/* Y-axis scale */}
+              <div className="relative w-10 flex-shrink-0 h-24">
+                {(() => {
+                  const maxTime = Math.max(maxLap, stopwatch.goal || 0) * 1.1;
+                  const ticks = 5;
+                  return Array.from({ length: ticks + 1 }, (_, i) => {
+                    const timeValue = (maxTime * i) / ticks;
+                    const bottomPercent = (i / ticks) * 100;
+                    return (
+                      <div
+                        key={i}
+                        className="absolute right-0 text-[8px] text-gray-500 font-mono"
+                        style={{ bottom: `${bottomPercent}%`, transform: 'translateY(50%)' }}
+                      >
+                        {formatTime(timeValue).minutes}:{formatTime(timeValue).seconds}
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
 
-                {/* Chart area */}
-                <div className="flex-1 relative">
-                  {/* Goal line */}
-                  {stopwatch.goal && (
-                    <div
-                      className="absolute left-0 right-0 border-t-2 border-dashed border-yellow-400 z-10 pointer-events-none"
-                      style={{
-                        bottom: `${Math.min(100, (stopwatch.goal / (Math.max(maxLap, stopwatch.goal) * 1.1)) * 100)}%`,
-                      }}
-                    >
-                      <span className="absolute right-1 -top-3 text-[8px] text-yellow-400 font-bold bg-[#1a1a1a] px-1">
-                        🎯 META
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Grid lines */}
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <div
-                      key={i}
-                      className="absolute left-0 right-0 border-t border-[#333]"
-                      style={{ bottom: `${(i / 5) * 100}%` }}
-                    />
-                  ))}
-
-                  {/* Bars */}
-                  <div className="relative h-24 flex items-end gap-0.5">
-                    {stopwatch.laps.slice(-10).map((lap) => {
-                      const maxTime = Math.max(maxLap, stopwatch.goal || 0) * 1.1;
-                      const heightPercent = (lap.splitTime / maxTime) * 100;
-                      let bgColor = 'bg-green-500';
-                      if (stopwatch.goal) {
-                        bgColor =
-                          lap.splitTime > stopwatch.goal
-                            ? 'bg-red-500'
-                            : 'bg-green-500';
-                      }
-                      const isFastest = lap.splitTime === minLap;
-                      const isSlowest = lap.splitTime === maxLap;
-
-                      return (
-                        <div
-                          key={lap.id}
-                          className="flex-1 flex flex-col items-center gap-0.5"
-                        >
-                          <div
-                            className={`w-full ${bgColor} rounded-t-sm transition-all ${
-                              isFastest ? 'ring-1 ring-green-400' : ''
-                            } ${isSlowest ? 'ring-1 ring-red-400' : ''}`}
-                            style={{
-                              height: `${heightPercent}%`,
-                              minHeight: '4px',
-                              opacity: 0.85,
-                            }}
-                          />
-                          <span className="text-[8px] text-gray-500">
-                            V{lap.number}
-                          </span>
-                        </div>
-                      );
-                    })}
+              {/* Chart area */}
+              <div className="flex-1 relative h-24">
+                {/* Goal line */}
+                {stopwatch.goal && (
+                  <div
+                    className="absolute left-0 right-0 border-t-2 border-dashed border-yellow-400 z-10 pointer-events-none"
+                    style={{
+                      bottom: `${(stopwatch.goal / (Math.max(maxLap, stopwatch.goal) * 1.1)) * 100}%`,
+                    }}
+                  >
+                    <span className="absolute right-1 -top-3 text-[8px] text-yellow-400 font-bold bg-[#1a1a1a] px-1">
+                      🎯 META
+                    </span>
                   </div>
+                )}
+
+                {/* Grid lines */}
+                {Array.from({ length: 6 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="absolute left-0 right-0 border-t border-[#333]"
+                    style={{ bottom: `${(i / 5) * 100}%` }}
+                  />
+                ))}
+
+                {/* Bars */}
+                <div className="absolute bottom-0 left-0 right-0 top-0 flex items-end gap-0.5">
+                  {stopwatch.laps.slice(-10).map((lap) => {
+                    const maxTime = Math.max(maxLap, stopwatch.goal || 0) * 1.1;
+                    const heightPercent = (lap.splitTime / maxTime) * 100;
+                    let bgColor = 'bg-green-500';
+                    if (stopwatch.goal) {
+                      bgColor =
+                        lap.splitTime > stopwatch.goal
+                          ? 'bg-red-500'
+                          : 'bg-green-500';
+                    }
+                    const isFastest = lap.splitTime === minLap;
+                    const isSlowest = lap.splitTime === maxLap;
+
+                    return (
+                      <div
+                        key={lap.id}
+                        className="flex-1 flex flex-col items-center justify-end h-full"
+                      >
+                        <div
+                          className={`w-full ${bgColor} rounded-t-sm transition-all ${
+                            isFastest ? 'ring-1 ring-green-400' : ''
+                          } ${isSlowest ? 'ring-1 ring-red-400' : ''}`}
+                          style={{
+                            height: `${heightPercent}%`,
+                            minHeight: '2px',
+                            opacity: 0.85,
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
+
+            {/* X-axis labels */}
+            <div className="flex gap-0.5 mt-1 ml-10">
+              {stopwatch.laps.slice(-10).map((lap) => (
+                <div key={lap.id} className="flex-1 text-center">
+                  <span className="text-[8px] text-gray-500">V{lap.number}</span>
+                </div>
+              ))}
+            </div>            </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-1 mt-2">
