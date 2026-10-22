@@ -22,12 +22,11 @@ export default function VideoAdModal({ isOpen, onClose, onVideoComplete }: Video
       setProgress(0);
       setCanClose(false);
       
-      // Simular progreso del video
+      // Simular progreso del video de Google AdSense
       intervalRef.current = setInterval(() => {
         setProgress((prev) => {
           const newProgress = prev + (100 / VIDEO_DURATION);
           if (newProgress >= 100) {
-            // Video completado
             if (intervalRef.current) {
               clearInterval(intervalRef.current);
             }
@@ -39,7 +38,6 @@ export default function VideoAdModal({ isOpen, onClose, onVideoComplete }: Video
         });
       }, 1000);
     } else {
-      // Limpiar intervalo al cerrar
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
@@ -67,7 +65,7 @@ export default function VideoAdModal({ isOpen, onClose, onVideoComplete }: Video
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm">
       <div className="relative w-full max-w-4xl mx-4">
-        {/* Botón de cerrar (solo habilitado después de ver el video) */}
+        {/* Botón de cerrar */}
         <button
           onClick={handleClose}
           disabled={!canClose}
@@ -80,43 +78,91 @@ export default function VideoAdModal({ isOpen, onClose, onVideoComplete }: Video
           <X size={24} />
         </button>
 
-        {/* Contenedor del video */}
-        <div className="relative bg-black rounded-lg overflow-hidden shadow-2xl">
-          {/* Video placeholder (reemplazar con video real del patrocinador) */}
-          <div className="relative aspect-video bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
-            {/* Contenido del video patrocinado */}
-            <div className="text-center space-y-4">
-              <div className="text-6xl mb-4">🎬</div>
-              <div className="text-white text-2xl font-bold">Video Patrocinado</div>
-              <div className="text-gray-400 text-sm">
+        {/* Contenedor del video de Google AdSense */}
+        <div className="relative bg-black rounded-lg overflow-hidden shadow-2xl border-2 border-blue-500/30">
+          {/* Header del video */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="text-white font-bold text-sm">📺 Google AdSense Video</div>
+              <div className="text-white/70 text-xs">Anuncio</div>
+            </div>
+            <div className="text-white text-xs font-mono">
+              {Math.floor(progress / (100 / VIDEO_DURATION))}s / {VIDEO_DURATION}s
+            </div>
+          </div>
+
+          {/* Área del video */}
+          <div className="relative aspect-video bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20 flex items-center justify-center">
+            
+            {/* 
+              AQUÍ VA EL VIDEO REAL DE GOOGLE ADSENSE
+              
+              OPCIÓN 1: Google AdSense Video (requiere aprobación especial)
+              <div id="google-ad-video" className="w-full h-full">
+                <ins 
+                  className="adsbygoogle"
+                  style={{ display: 'block', width: '100%', height: '100%' }}
+                  data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                  data-ad-slot="VIDEO_SLOT_ID"
+                  data-ad-format="video"
+                />
+              </div>
+
+              OPCIÓN 2: YouTube Video Ad (más fácil)
+              <iframe
+                src="https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=1&controls=0&modestbranding=1"
+                className="w-full h-full"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+              />
+
+              OPCIÓN 3: Video MP4 directo
+              <video
+                ref={videoRef}
+                src="/ads/google-ad-video.mp4"
+                autoPlay
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            */}
+
+            {/* Placeholder visual mientras configuras el video real */}
+            <div className="text-center space-y-4 p-8">
+              <div className="text-7xl mb-4 animate-pulse">🎬</div>
+              <div className="text-white text-2xl font-bold">Video Ad de Google AdSense</div>
+              <div className="text-blue-400 text-sm font-semibold">
                 {isPlaying && progress < 100 ? (
-                  <span>Reproduciendo... {remainingSeconds}s restantes</span>
+                  <span>Reproduciendo anuncio... {remainingSeconds}s restantes</span>
                 ) : (
-                  <span className="text-green-400">✓ Video completado</span>
+                  <span className="text-green-400">✓ ¡Anuncio completado!</span>
                 )}
               </div>
               
-              {/* Información del patrocinador */}
-              <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
-                <div className="text-xs text-gray-500 mb-2">PATROCINADO POR</div>
-                <div className="text-white font-semibold">Tu Empresa Aquí</div>
+              {/* Información del anuncio */}
+              <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10 max-w-md mx-auto">
+                <div className="text-xs text-gray-400 mb-2">ANUNCIO DE</div>
+                <div className="text-white font-semibold text-lg">Google AdSense</div>
                 <div className="text-gray-400 text-sm mt-1">
-                  Visita: www.tuempresa.com
+                  Video publicitario de 15 segundos
+                </div>
+                <div className="text-xs text-gray-500 mt-2">
+                  Al completar este video, no verás anuncios durante 24 horas
                 </div>
               </div>
             </div>
 
             {/* Barra de progreso */}
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
+            <div className="absolute bottom-0 left-0 right-0 h-2 bg-white/20">
               <div
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000 ease-linear"
+                className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-1000 ease-linear shadow-lg"
                 style={{ width: `${progress}%` }}
               />
             </div>
 
-            {/* Indicador de tiempo */}
-            <div className="absolute bottom-4 right-4 bg-black/80 px-3 py-1 rounded text-white text-sm font-mono">
-              {Math.floor(progress / (100 / VIDEO_DURATION))}s / {VIDEO_DURATION}s
+            {/* Indicador de "Anuncio" */}
+            <div className="absolute top-4 left-4 bg-black/80 px-3 py-1 rounded text-white text-xs font-bold border border-white/20">
+              ANUNCIO
             </div>
           </div>
         </div>
@@ -124,12 +170,22 @@ export default function VideoAdModal({ isOpen, onClose, onVideoComplete }: Video
         {/* Mensaje inferior */}
         <div className="mt-4 text-center">
           {canClose ? (
-            <div className="text-green-400 text-sm">
-              ✓ ¡Gracias por ver el anuncio! No tendrás anuncios durante 24 horas.
+            <div className="bg-green-600/20 border border-green-500/30 rounded-lg p-4">
+              <div className="text-green-400 text-lg font-bold mb-1">
+                ✓ ¡Gracias por ver el anuncio!
+              </div>
+              <div className="text-green-400/80 text-sm">
+                No tendrás anuncios durante 24 horas
+              </div>
             </div>
           ) : (
-            <div className="text-gray-400 text-sm">
-              Por favor, espera {remainingSeconds} segundos para cerrar el anuncio
+            <div className="bg-blue-600/20 border border-blue-500/30 rounded-lg p-4">
+              <div className="text-blue-400 text-sm font-semibold mb-1">
+                ⏱️ Por favor, espera el anuncio completo
+              </div>
+              <div className="text-blue-400/70 text-xs">
+                Faltan {remainingSeconds} segundos para desactivar anuncios por 24h
+              </div>
             </div>
           )}
         </div>

@@ -137,25 +137,24 @@ export default function App() {
             </h1>
           </div>
           
-          <div className="flex items-center gap-2 md:gap-4">
-            {/* Botón de video / estado de anuncios */}
+          <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+            {/* Botón de video / estado de anuncios - MÁS VISIBLE */}
             {isAdsDisabled ? (
               <div className="flex items-center gap-2 px-3 py-2 bg-green-600/20 border border-green-500/30 rounded-lg">
                 <CheckCircle size={16} className="text-green-400" />
-                <div className="hidden sm:block text-xs text-green-400">
-                  <div className="font-semibold">Sin anuncios</div>
+                <div className="text-xs text-green-400">
+                  <div className="font-semibold">✓ Sin anuncios</div>
                   <div className="text-[10px] text-green-400/70">{countdown}</div>
                 </div>
               </div>
             ) : (
               <button
                 onClick={() => setShowVideoAd(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
-                title="Ver video para desactivar anuncios por 24 horas"
+                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all text-sm font-bold shadow-lg shadow-blue-500/30 animate-pulse"
+                title="Ver video de Google AdSense para desactivar anuncios por 24 horas"
               >
-                <Film size={16} />
-                <span className="hidden sm:inline">Ver Video - Sin anuncios 24h</span>
-                <span className="sm:hidden">Video</span>
+                <Film size={18} className="animate-bounce" />
+                <span>🎬 Ver Video Ad - Sin anuncios 24h</span>
               </button>
             )}
 
