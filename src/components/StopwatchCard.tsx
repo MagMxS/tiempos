@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Stopwatch } from '../types';
 import { formatTime, formatSeconds } from '../utils/time';
 import { Play, Pause, RotateCcw, Flag, Target, BarChart3, Check, X, Trash2 } from 'lucide-react';
@@ -27,8 +27,14 @@ export default function StopwatchCard({
   onViewDetail,
 }: StopwatchCardProps) {
   const [showGoalEditor, setShowGoalEditor] = useState(false);
-  const [goalMinutes, setGoalMinutes] = useState('');
   const [goalSeconds, setGoalSeconds] = useState('');
+
+  useEffect(() => {
+    if (stopwatch.goal) {
+      const totalSeconds = Math.floor(stopwatch.goal / 1000);
+      setGoalSeconds(String(totalSeconds));
+    }
+  }, [stopwatch.goal, showGoalEditor]);
 
   const { seconds, millis } = formatTime(elapsed);
   const lapTimes = stopwatch.laps.map((l) => l.splitTime);
@@ -40,9 +46,8 @@ export default function StopwatchCard({
       : 0;
 
   const handleSaveGoal = () => {
-    const m = parseInt(goalMinutes) || 0;
     const s = parseInt(goalSeconds) || 0;
-    const totalMs = m * 60000 + s * 1000;
+    const totalMs = s * 1000;
     if (totalMs > 0) {
       onSetGoal(totalMs);
       setShowGoalEditor(false);
@@ -50,11 +55,11 @@ export default function StopwatchCard({
   };
 
   const presets = [
+    { label: '10s', value: 10000 },
+    { label: '20s', value: 20000 },
     { label: '30s', value: 30000 },
-    { label: '1m', value: 60000 },
-    { label: '2m', value: 120000 },
-    { label: '3m', value: 180000 },
-    { label: '5m', value: 300000 },
+    { label: '45s', value: 45000 },
+    { label: '60s', value: 60000 },
   ];
 
   return (
@@ -78,6 +83,7 @@ export default function StopwatchCard({
           <span className="text-orange-400">{seconds}</span>
           <span className="text-gray-600">.</span>
           <span className="text-green-400 text-2xl">{millis}</span>
+          <span className="text-gray-500 text-lg">s</span>
         </div>
         {stopwatch.isRunning && (
           <div className="flex items-center justify-center gap-1 mt-1">
@@ -163,22 +169,13 @@ export default function StopwatchCard({
               <input
                 type="number"
                 min="0"
-                max="99"
-                placeholder="MM"
-                value={goalMinutes}
-                onChange={(e) => setGoalMinutes(e.target.value)}
-                className="w-14 bg-[#1a1a1a] text-white text-center font-mono text-sm px-2 py-1 rounded border border-[#444] outline-none focus:border-yellow-500"
-              />
-              <span className="text-gray-500 font-mono">:</span>
-              <input
-                type="number"
-                min="0"
-                max="59"
-                placeholder="SS"
+                max="999"
+                placeholder="Segundos"
                 value={goalSeconds}
                 onChange={(e) => setGoalSeconds(e.target.value)}
-                className="w-14 bg-[#1a1a1a] text-white text-center font-mono text-sm px-2 py-1 rounded border border-[#444] outline-none focus:border-yellow-500"
+                className="w-full bg-[#1a1a1a] text-white text-center font-mono text-sm px-2 py-1 rounded border border-[#444] outline-none focus:border-yellow-500"
               />
+              <span className="text-gray-500 text-xs">s</span>
             </div>
             <button
               onClick={handleSaveGoal}
@@ -252,7 +249,7 @@ export default function StopwatchCard({
                         className="absolute right-0 text-[8px] text-gray-500 font-mono"
                         style={{ bottom: `${bottomPercent}%`, transform: 'translateY(50%)' }}
                       >
-                        {formatSeconds(timeValue)}
+                        {formatTime(timeValue).seconds}.{formatTime(timeValue).millis}s
                       </div>
                     );
                   });
@@ -335,19 +332,19 @@ export default function StopwatchCard({
               <div className="bg-[#2a2a2a] rounded py-1 text-center">
                 <div className="text-[8px] text-gray-500">Mejor</div>
                 <div className="text-[10px] font-mono text-green-400 font-bold">
-                  {formatSeconds(minLap)}
+                  {formatTime(minLap).seconds}.{formatTime(minLap).millis}s
                 </div>
               </div>
               <div className="bg-[#2a2a2a] rounded py-1 text-center">
                 <div className="text-[8px] text-gray-500">Prom</div>
                 <div className="text-[10px] font-mono text-blue-400 font-bold">
-                  {formatSeconds(avgLap)}
+                  {formatTime(avgLap).seconds}.{formatTime(avgLap).millis}s
                 </div>
               </div>
               <div className="bg-[#2a2a2a] rounded py-1 text-center">
                 <div className="text-[8px] text-gray-500">Peor</div>
                 <div className="text-[10px] font-mono text-red-400 font-bold">
-                  {formatSeconds(maxLap)}
+                  {formatTime(maxLap).seconds}.{formatTime(maxLap).millis}s
                 </div>
               </div>
             </div>

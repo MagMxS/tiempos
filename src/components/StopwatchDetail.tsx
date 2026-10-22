@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Stopwatch } from '../types';
 import { formatTime, formatSeconds } from '../utils/time';
 import { ArrowLeft, Play, Pause, RotateCcw, Flag, Target, BarChart3, Check, X } from 'lucide-react';
@@ -25,8 +25,14 @@ export default function StopwatchDetail({
   onSetGoal,
 }: StopwatchDetailProps) {
   const [showGoalEditor, setShowGoalEditor] = useState(false);
-  const [goalMinutes, setGoalMinutes] = useState('');
   const [goalSeconds, setGoalSeconds] = useState('');
+
+  useEffect(() => {
+    if (stopwatch.goal) {
+      const totalSeconds = Math.floor(stopwatch.goal / 1000);
+      setGoalSeconds(String(totalSeconds));
+    }
+  }, [stopwatch.goal, showGoalEditor]);
 
   const { seconds, millis } = formatTime(elapsed);
   const lapTimes = stopwatch.laps.map((l) => l.splitTime);
@@ -38,19 +44,18 @@ export default function StopwatchDetail({
       : 0;
 
   const presets = [
+    { label: '10s', value: 10000 },
+    { label: '20s', value: 20000 },
     { label: '30s', value: 30000 },
-    { label: '1m', value: 60000 },
-    { label: '1:30', value: 90000 },
-    { label: '2m', value: 120000 },
-    { label: '3m', value: 180000 },
-    { label: '5m', value: 300000 },
-    { label: '10m', value: 600000 },
+    { label: '45s', value: 45000 },
+    { label: '60s', value: 60000 },
+    { label: '90s', value: 90000 },
+    { label: '120s', value: 120000 },
   ];
 
   const handleSaveGoal = () => {
-    const m = parseInt(goalMinutes) || 0;
     const s = parseInt(goalSeconds) || 0;
-    const totalMs = m * 60000 + s * 1000;
+    const totalMs = s * 1000;
     if (totalMs > 0) {
       onSetGoal(totalMs);
       setShowGoalEditor(false);
@@ -87,6 +92,7 @@ export default function StopwatchDetail({
           <span className="text-orange-400">{seconds}</span>
           <span className="text-gray-600">.</span>
           <span className="text-green-400 text-4xl md:text-5xl">{millis}</span>
+          <span className="text-gray-500 text-3xl md:text-4xl">s</span>
         </div>
         {stopwatch.goal && (
           <div className="mt-3">
@@ -174,27 +180,12 @@ export default function StopwatchDetail({
             <div className="flex items-center gap-2 mb-3">
               <div className="flex-1">
                 <label className="text-xs text-gray-500 block mb-1">
-                  Minutos
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="99"
-                  placeholder="00"
-                  value={goalMinutes}
-                  onChange={(e) => setGoalMinutes(e.target.value)}
-                  className="w-full bg-[#1a1a1a] text-white text-center font-mono text-lg px-3 py-2 rounded-lg border border-[#444] outline-none focus:border-yellow-500"
-                />
-              </div>
-              <span className="text-gray-500 font-mono text-2xl mt-5">:</span>
-              <div className="flex-1">
-                <label className="text-xs text-gray-500 block mb-1">
                   Segundos
                 </label>
                 <input
                   type="number"
                   min="0"
-                  max="59"
+                  max="999"
                   placeholder="00"
                   value={goalSeconds}
                   onChange={(e) => setGoalSeconds(e.target.value)}
@@ -289,7 +280,7 @@ export default function StopwatchDetail({
                         className="absolute right-0 text-[10px] text-gray-400 font-mono"
                         style={{ bottom: `${bottomPercent}%`, transform: 'translateY(50%)' }}
                       >
-                        {formatSeconds(timeValue)}
+                        {formatTime(timeValue).seconds}.{formatTime(timeValue).millis}s
                       </div>
                     );
                   });
@@ -342,7 +333,7 @@ export default function StopwatchDetail({
                         className="flex-1 flex flex-col items-center justify-end h-full relative"
                       >
                         <span className="text-[10px] text-gray-400 font-mono mb-1">
-                          {formatSeconds(lap.splitTime)}
+                          {formatTime(lap.splitTime).seconds}.{formatTime(lap.splitTime).millis}s
                         </span>
                         <div
                           className={`w-full ${bgColor} rounded-t-md transition-all relative ${
@@ -403,7 +394,7 @@ export default function StopwatchDetail({
                 Más Rápida
               </div>
               <div className="text-lg font-mono text-green-400 font-bold">
-                {formatSeconds(minLap)}
+                {formatTime(minLap).seconds}.{formatTime(minLap).millis}s
               </div>
             </div>
             <div className="bg-[#2a2a2a] rounded-lg py-3 text-center border border-[#333]">
@@ -411,7 +402,7 @@ export default function StopwatchDetail({
                 Promedio
               </div>
               <div className="text-lg font-mono text-blue-400 font-bold">
-                {formatSeconds(avgLap)}
+                {formatTime(avgLap).seconds}.{formatTime(avgLap).millis}s
               </div>
             </div>
             <div className="bg-[#2a2a2a] rounded-lg py-3 text-center border border-[#333]">
@@ -419,7 +410,7 @@ export default function StopwatchDetail({
                 Más Lenta
               </div>
               <div className="text-lg font-mono text-red-400 font-bold">
-                {formatSeconds(maxLap)}
+                {formatTime(maxLap).seconds}.{formatTime(maxLap).millis}s
               </div>
             </div>
           </div>
@@ -448,9 +439,7 @@ export default function StopwatchDetail({
                 {[...stopwatch.laps].reverse().map((lap) => {
                   const isFastest = lap.splitTime === minLap;
                   const isSlowest = lap.splitTime === maxLap;
-                  const { seconds: s, millis: ms } = formatTime(
-                    lap.splitTime
-                  );
+                  const { seconds: s, millis: ms } = formatTime(lap.splitTime);
                   return (
                     <tr
                       key={lap.id}
@@ -474,10 +463,10 @@ export default function StopwatchDetail({
                               : 'text-white'
                         }`}
                       >
-                        {s}.{ms}
+                        {s}.{ms}s
                       </td>
                       <td className="px-4 py-2 text-right font-mono text-sm text-gray-400">
-                        {formatSeconds(lap.totalTime)}
+                        {formatTime(lap.totalTime).seconds}.{formatTime(lap.totalTime).millis}s
                       </td>
                       <td className="px-4 py-2 text-center">
                         {isFastest && (

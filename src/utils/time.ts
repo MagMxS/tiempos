@@ -10,5 +10,6 @@ export function formatTime(ms: number) {
 
 export function formatSeconds(ms: number): string {
   const totalSeconds = Math.floor(ms / 1000);
-  return `${totalSeconds}s`;
+  const millis = Math.floor(ms % 1000);
+  return `${totalSeconds}.${String(millis).padStart(3, '0')}s`;
 }
