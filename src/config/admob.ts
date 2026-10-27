@@ -20,21 +20,21 @@
 export const ADMOB_CONFIG = {
   // Tu ID de publicador de AdMob
   // ⚠️ CAMBIA ESTO con tu ID real de AdMob
-  AD_CLIENT: 'ca-pub-XXXXXXXXXXXXXXXX', // Ejemplo real: 'ca-pub-1234567890123456'
+  AD_CLIENT: 'ca- pub-4955051379520060', // Ejemplo real: 'ca-pub-1234567890123456'
   
   // IDs de unidades de anuncio (slots)
   // ⚠️ CAMBIA ESTOS con tus IDs reales de unidades de anuncio
   AD_SLOTS: {
     // Banner superior (728x90)
-    TOP_BANNER: '3940256099', // ID de prueba de Google
+    TOP_BANNER: '8302243331', // ID de prueba de Google
     
     // Banner entre cronómetros (728x90)
-    INLINE_BANNER_1: '3940256099', // ID de prueba de Google
-    INLINE_BANNER_2: '3940256099', // ID de prueba de Google
-    INLINE_BANNER_3: '3940256099', // ID de prueba de Google
+    INLINE_BANNER_1: '5436406845', // ID de prueba de Google
+    INLINE_BANNER_2: '8302243331', // ID de prueba de Google
+    INLINE_BANNER_3: '4428331527', // ID de prueba de Google
     
     // Banner inferior (728x90)
-    BOTTOM_BANNER: '3940256099', // ID de prueba de Google
+    BOTTOM_BANNER: '1690275519', // ID de prueba de Google
   },
   
   // Configuración del video de opt-out
