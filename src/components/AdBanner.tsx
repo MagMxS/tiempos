@@ -9,7 +9,7 @@ interface AdBannerProps {
 export default function AdBanner({ slot = 'TOP_BANNER', format = 'horizontal' }: AdBannerProps) {
   // Dimensiones según formato
   const dimensions = {
-    horizontal: { width: '728px', height: '90px', label: '728x90' },
+    horizontal: { width: '728px', height: '45px', label: '728x45' },
     vertical: { width: '160px', height: '600px', label: '160x600' },
     rectangle: { width: '300px', height: '250px', label: '300x250' },
   };
