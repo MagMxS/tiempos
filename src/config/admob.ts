@@ -40,7 +40,7 @@ export const ADMOB_CONFIG = {
   // Configuración del video de opt-out
   VIDEO_AD: {
     // ID del slot para video ad (si tienes uno)
-    SLOT: '3940256099', // ID de prueba de Google
+    SLOT: '6009006502', // ID de prueba de Google
     
     // Duración del video en segundos
     DURATION: 15,
