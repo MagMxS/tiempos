@@ -20,7 +20,7 @@
 export const ADMOB_CONFIG = {
   // Tu ID de publicador de AdMob
   // ⚠️ CAMBIA ESTO con tu ID real de AdMob
-  AD_CLIENT: 'ca- pub-4955051379520060', // Ejemplo real: 'ca-pub-1234567890123456'
+  AD_CLIENT: 'ca-pub-4955051379520060', // ✅ ID real sin espacios
   
   // IDs de unidades de anuncio (slots)
   // ⚠️ CAMBIA ESTOS con tus IDs reales de unidades de anuncio
@@ -47,8 +47,8 @@ export const ADMOB_CONFIG = {
   },
   
   // Modo de prueba (true = usa anuncios de prueba, false = usa anuncios reales)
-  // ⚠️ CAMBIA A false CUANDO ESTÉS LISTO PARA PRODUCCIÓN
-  TEST_MODE: true,
+  // ✅ false = anuncios reales de AdMob activos
+  TEST_MODE: false,
 };
 
 // IDs de prueba de Google (úsalos mientras desarrollas)
