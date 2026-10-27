@@ -201,7 +201,7 @@ export default function App() {
         ) : (
           <>
             {/* Banner superior de AdSense (solo si los anuncios están habilitados) */}
-            {!isAdsDisabled && <AdBanner slot="top-banner" format="horizontal" />}
+            {!isAdsDisabled && <AdBanner slot="TOP_BANNER" format="horizontal" />}
 
             {/* Grid de cronómetros */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -220,9 +220,19 @@ export default function App() {
                   />
                   
                   {/* Banner de AdSense cada 3 cronómetros (solo si los anuncios están habilitados) */}
-                  {!isAdsDisabled && (index + 1) % 3 === 0 && index < stopwatches.length - 1 && (
+                  {!isAdsDisabled && index === 2 && (
                     <div className="col-span-full my-4">
-                      <AdBanner slot={`inline-${Math.floor(index / 3)}`} format="horizontal" />
+                      <AdBanner slot="INLINE_BANNER_1" format="horizontal" />
+                    </div>
+                  )}
+                  {!isAdsDisabled && index === 5 && (
+                    <div className="col-span-full my-4">
+                      <AdBanner slot="INLINE_BANNER_2" format="horizontal" />
+                    </div>
+                  )}
+                  {!isAdsDisabled && index === 8 && (
+                    <div className="col-span-full my-4">
+                      <AdBanner slot="INLINE_BANNER_3" format="horizontal" />
                     </div>
                   )}
                 </div>
@@ -230,7 +240,7 @@ export default function App() {
             </div>
 
             {/* Banner inferior de AdSense (solo si los anuncios están habilitados) */}
-            {!isAdsDisabled && <AdBanner slot="bottom-banner" format="horizontal" />}
+            {!isAdsDisabled && <AdBanner slot="BOTTOM_BANNER" format="horizontal" />}
           </>
         )}
       </main>
