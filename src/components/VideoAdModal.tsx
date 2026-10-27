@@ -32,6 +32,12 @@ export default function VideoAdModal({ isOpen, onClose, onVideoComplete }: Video
             }
             setCanClose(true);
             onVideoComplete();
+            
+            // Cerrar automáticamente después de 2 segundos
+            setTimeout(() => {
+              onClose();
+            }, 2000);
+            
             return 100;
           }
           return newProgress;
@@ -50,7 +56,7 @@ export default function VideoAdModal({ isOpen, onClose, onVideoComplete }: Video
         clearInterval(intervalRef.current);
       }
     };
-  }, [isOpen, onVideoComplete]);
+  }, [isOpen, onVideoComplete, onClose]);
 
   const handleClose = () => {
     if (canClose) {
@@ -176,6 +182,9 @@ export default function VideoAdModal({ isOpen, onClose, onVideoComplete }: Video
               </div>
               <div className="text-green-400/80 text-sm">
                 No tendrás anuncios durante 24 horas
+              </div>
+              <div className="text-green-400/60 text-xs mt-2">
+                Cerrando automáticamente...
               </div>
             </div>
           ) : (
